@@ -1,0 +1,444 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="Clarity">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clarity AI</title>
+    <link rel="icon" type="image/svg+xml" href="./BohemAILogo.svg">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: New custom font selections -->
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;600;700&family=Titan+One&family=Quicksand:wght@300;400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      /* Global font is now set by App.tsx, this is a fallback */
+      body {
+        font-family: 'Noto Sans', sans-serif; /* Default fallback for new font set */
+      }
+
+      /* Base Theme Variables */
+      :root {
+        /* Default values for `Clarity` - should be overridden by data-theme */
+        --color-primary: #01413e; /* Darker PULLI Green, matching spinner */
+        --color-primary-dark: #002D2B; /* Darker shade for hover */
+        --color-secondary: #D7C286; /* Muted Gold */
+        --color-bg-body: #F5F5F0; /* Off-white background */
+        --color-bg-card: #FFFFFF; /* Pure white for cards */
+        --color-bg-card-hover: #E9E9E0; /* Subtle hover for cards */
+        --color-text-primary: #2E2F32; /* Dark text */
+        --color-text-secondary: #666666; /* Medium gray for secondary text */
+        --color-border-default: #D0D0CB; /* Light gray border */
+        --color-border-accent: #00A55D; /* Original Primary green accent */
+        --color-error: #DC3545; /* Standard red for errors */
+        --color-success: #28A745; /* Standard green for success */
+        --color-logout: #DC3545;
+        --color-logout-hover: #C82333; /* Darker red hover for logout */
+        --color-mock-login-bg: #C0C0B8; /* Light gray for mock login button */
+        --color-mock-login-hover-bg: #A0A098; /* Darker light gray */
+        --color-text-on-primary: #FFFFFF;
+
+        /* Momentum Badges (adjusted for light background) */
+        --color-momentum-new-bg: #FFF3CD;
+        --color-momentum-new-text: #856404;
+        --color-momentum-increasing-bg: #D4EDDA;
+        --color-momentum-increasing-text: #155724;
+        --color-momentum-cooling-bg: #F8D7DA;
+        --color-momentum-cooling-text: #721C24;
+        --color-momentum-stable-bg: #CCE5FF;
+        --color-momentum-stable-text: #004085;
+
+        /* Vibe Badges (NEW) */
+        --color-vibe-positive-bg: #D4EDDA;
+        --color-vibe-positive-text: #155724;
+        --color-vibe-negative-bg: #F8D7DA;
+        --color-vibe-negative-text: #721C24;
+        --color-vibe-neutral-bg: #E2E3E5;
+        --color-vibe-neutral-text: #383D41;
+        --color-vibe-mixed-bg: #FFF3CD;
+        --color-vibe-mixed-text: #856404;
+        --color-vibe-unknown-bg: #D1ECF1;
+        --color-vibe-unknown-text: #0C5460;
+
+        /* Customer Categories (NEW) */
+        --color-customer-enthusiastic-bg: #E6FFED;
+        --color-customer-enthusiastic-text: #1F7A47;
+        --color-customer-enthusiastic-border: #38A169;
+
+        --color-customer-potential-bg: #FFFBEB;
+        --color-customer-potential-text: #B78D1C;
+        --color-customer-potential-border: #D6BD6B;
+
+        --color-customer-needs-attention-bg: #FEE8E8;
+        --color-customer-needs-attention-text: #B91C1C;
+        --color-customer-needs-attention-border: #DC2626;
+
+        --color-customer-general-bg: #E0F2F7;
+        --color-customer-general-text: #0F6B8A;
+        --color-customer-general-border: #4A90E2;
+
+        --color-background-animated-start: #F0F0EB;
+        --color-background-animated-end: #FAFAF5;
+        --color-form-background: #FFFFFF;
+      }
+
+      /* Clarity Theme (Default Light) */
+      html[data-theme="Clarity"] {
+        --color-primary: #01413e;
+        --color-primary-dark: #002D2B;
+        --color-secondary: #D7C286;
+        --color-bg-body: #F5F5F0;
+        --color-bg-card: #FFFFFF;
+        --color-bg-card-hover: #E9E9E0;
+        --color-text-primary: #2E2F32;
+        --color-text-secondary: #666666;
+        --color-border-default: #D0D0CB;
+        --color-border-accent: #00A55D;
+        --color-error: #DC3545;
+        --color-success: #28A745;
+        --color-logout: #DC3545;
+        --color-logout-hover: #C82333;
+        --color-mock-login-bg: #C0C0B8;
+        --color-mock-login-hover-bg: #A0A098;
+        --color-text-on-primary: #FFFFFF;
+
+        --color-momentum-new-bg: #FFF3CD;
+        --color-momentum-new-text: #856404;
+        --color-momentum-increasing-bg: #D4EDDA;
+        --color-momentum-increasing-text: #155724;
+        --color-momentum-cooling-bg: #F8D7DA;
+        --color-momentum-cooling-text: #721C24;
+        --color-momentum-stable-bg: #CCE5FF;
+        --color-momentum-stable-text: #004085;
+
+        --color-vibe-positive-bg: #D4EDDA;
+        --color-vibe-positive-text: #155724;
+        --color-vibe-negative-bg: #F8D7DA;
+        --color-vibe-negative-text: #721C24;
+        --color-vibe-neutral-bg: #E2E3E5;
+        --color-vibe-neutral-text: #383D41;
+        --color-vibe-mixed-bg: #FFF3CD;
+        --color-vibe-mixed-text: #856404;
+        --color-vibe-unknown-bg: #D1ECF1;
+        --color-vibe-unknown-text: #0C5460;
+
+        --color-customer-enthusiastic-bg: #E6FFED;
+        --color-customer-enthusiastic-text: #1F7A47;
+        --color-customer-enthusiastic-border: #38A169;
+
+        --color-customer-potential-bg: #FFFBEB;
+        --color-customer-potential-text: #B78D1C;
+        --color-customer-potential-border: #D6BD6B;
+
+        --color-customer-needs-attention-bg: #FEE8E8;
+        --color-customer-needs-attention-text: #B91C1C;
+        --color-customer-needs-attention-border: #DC2626;
+
+        --color-customer-general-bg: #E0F2F7;
+        --color-customer-general-text: #0F6B8A;
+        --color-customer-general-border: #4A90E2;
+
+        --color-background-animated-start: #F0F0EB;
+        --color-background-animated-end: #FAFAF5;
+        --color-form-background: #FFFFFF;
+      }
+
+      /* Clean Corporate Theme (Light - Trust & Clarity) */
+      html[data-theme="Clean Corporate"] {
+        --color-primary: #0F62FE; /* IBM Blue / Vivid Royal */
+        --color-primary-dark: #0B4FCC;
+        --color-secondary: #E0E7FF; /* Soft Indigo */
+        --color-bg-body: #F8FAFC; /* Very light slate gray */
+        --color-bg-card: #FFFFFF; /* Pure White */
+        --color-bg-card-hover: #F0F4F8; /* Very light gray */
+        --color-text-primary: #1E293B; /* Dark Slate */
+        --color-text-secondary: #64748B; /* Medium Slate */
+        --color-border-default: #E2E8F0; /* Light gray border for elements */
+        --color-border-accent: #0F62FE;
+        --color-error: #DC3545;
+        --color-success: #28A745;
+        --color-logout: #DC3545;
+        --color-logout-hover: #C82333;
+        --color-mock-login-bg: #C6D0F5;
+        --color-mock-login-hover-bg: #ABB8E0;
+        --color-text-on-primary: #FFFFFF;
+
+        --color-momentum-new-bg: #FFF3CD;
+        --color-momentum-new-text: #856404;
+        --color-momentum-increasing-bg: #D4EDDA;
+        --color-momentum-increasing-text: #155724;
+        --color-momentum-cooling-bg: #F8D7DA;
+        --color-momentum-cooling-text: #721C24;
+        --color-momentum-stable-bg: #CCE5FF;
+        --color-momentum-stable-text: #004085;
+
+        --color-vibe-positive-bg: #D4EDDA;
+        --color-vibe-positive-text: #155724;
+        --color-vibe-negative-bg: #F8D7DA;
+        --color-vibe-negative-text: #721C24;
+        --color-vibe-neutral-bg: #E2E3E5;
+        --color-vibe-neutral-text: #383D41;
+        --color-vibe-mixed-bg: #FFF3CD;
+        --color-vibe-mixed-text: #856404;
+        --color-vibe-unknown-bg: #D1ECF1;
+        --color-vibe-unknown-text: #0C5460;
+
+        --color-customer-enthusiastic-bg: #E6FFED;
+        --color-customer-enthusiastic-text: #1F7A47;
+        --color-customer-enthusiastic-border: #38A169;
+
+        --color-customer-potential-bg: #FFFBEB;
+        --color-customer-potential-text: #B78D1C;
+        --color-customer-potential-border: #D6BD6B;
+
+        --color-customer-needs-attention-bg: #FEE8E8;
+        --color-customer-needs-attention-text: #B91C1C;
+        --color-customer-needs-attention-border: #DC2626;
+
+        --color-customer-general-bg: #E0F2F7;
+        --color-customer-general-text: #0F6B8A;
+        --color-customer-general-border: #4A90E2;
+
+        --color-background-animated-start: #F8FAFC;
+        --color-background-animated-end: #FFFFFF;
+        --color-form-background: #FFFFFF;
+      }
+
+      /* Soft Modern Theme (Light - Approchable & Friendly) */
+      html[data-theme="Soft Modern"] {
+        --color-primary: #6366F1; /* Vivid Indigo */
+        --color-primary-dark: #4F53D7;
+        --color-secondary: #A5B4FC; /* Light Periwinkle */
+        --color-bg-body: #FAFAFA; /* Warm Off-White */
+        --color-bg-card: #FFFFFF;
+        --color-bg-card-hover: #F0F0F0;
+        --color-text-primary: #171717; /* Neutral Black */
+        --color-text-secondary: #525252; /* Neutral Gray */
+        --color-border-default: #E5E7EB;
+        --color-border-accent: #6366F1;
+        --color-error: #F43F5E; /* Rose for alerts */
+        --color-success: #28A745;
+        --color-logout: #F43F5E;
+        --color-logout-hover: #DC264A;
+        --color-mock-login-bg: #8C99E5;
+        --color-mock-login-hover-bg: #737ECF;
+        --color-text-on-primary: #FFFFFF;
+
+        --color-momentum-new-bg: #FFF3CD;
+        --color-momentum-new-text: #856404;
+        --color-momentum-increasing-bg: #D4EDDA;
+        --color-momentum-increasing-text: #155724;
+        --color-momentum-cooling-bg: #F8D7DA;
+        --color-momentum-cooling-text: #721C24;
+        --color-momentum-stable-bg: #CCE5FF;
+        --color-momentum-stable-text: #004085;
+
+        --color-vibe-positive-bg: #D4EDDA;
+        --color-vibe-positive-text: #155724;
+        --color-vibe-negative-bg: #F8D7DA;
+        --color-vibe-negative-text: #721C24;
+        --color-vibe-neutral-bg: #E2E3E5;
+        --color-vibe-neutral-text: #383D41;
+        --color-vibe-mixed-bg: #FFF3CD;
+        --color-vibe-mixed-text: #856404;
+        --color-vibe-unknown-bg: #D1ECF1;
+        --color-vibe-unknown-text: #0C5460;
+
+        --color-customer-enthusiastic-bg: #E6FFED;
+        --color-customer-enthusiastic-text: #1F7A47;
+        --color-customer-enthusiastic-border: #38A169;
+
+        --color-customer-potential-bg: #FFFBEB;
+        --color-customer-potential-text: #B78D1C;
+        --color-customer-potential-border: #D6BD6B;
+
+        --color-customer-needs-attention-bg: #FEE8E8;
+        --color-customer-needs-attention-text: #B91C1C;
+        --color-customer-needs-attention-border: #DC2626;
+
+        --color-customer-general-bg: #E0F2F7;
+        --color-customer-general-text: #0F6B8A;
+        --color-customer-general-border: #4A90E2;
+
+        --color-background-animated-start: #FAFAFA;
+        --color-background-animated-end: #FFFFFF;
+        --color-form-background: #FFFFFF;
+      }
+
+      /* Deep Ocean Theme (Dark - Focus & Precision) */
+      html[data-theme="Deep Ocean"] {
+        --color-primary: #38BDF8; /* Sky Blue */
+        --color-primary-dark: #0EA5E9;
+        --color-secondary: #818CF8; /* Soft Indigo */
+        --color-bg-body: #0F172A; /* Deep Navy / Slate */
+        --color-bg-card: #1E293B; /* Dark Slate */
+        --color-bg-card-hover: #334155; /* Slightly lighter slate */
+        --color-text-primary: #F1F5F9; /* Off-White */
+        --color-text-secondary: #94A3B8; /* Cool Gray */
+        --color-border-default: #334155; /* Subtle 1px border */
+        --color-border-accent: #38BDF8;
+        --color-error: #EF4444;
+        --color-success: #22C55E;
+        --color-logout: #EF4444;
+        --color-logout-hover: #DC2626;
+        --color-mock-login-bg: #475569;
+        --color-mock-login-hover-bg: #64748B;
+        --color-text-on-primary: #0F172A;
+
+        --color-momentum-new-bg: #422D00;
+        --color-momentum-new-text: #FFB300;
+        --color-momentum-increasing-bg: #0C4B33;
+        --color-momentum-increasing-text: #66BB6A;
+        --color-momentum-cooling-bg: #5C1D2A;
+        --color-momentum-cooling-text: #EF5350;
+        --color-momentum-stable-bg: #1A237E;
+        --color-momentum-stable-text: #7986CB;
+
+        --color-vibe-positive-bg: #0C4B33;
+        --color-vibe-positive-text: #66BB6A;
+        --color-vibe-negative-bg: #5C1D2A;
+        --color-vibe-negative-text: #EF5350;
+        --color-vibe-neutral-bg: #383D41;
+        --color-vibe-neutral-text: #94A3B8;
+        --color-vibe-mixed-bg: #422D00;
+        --color-vibe-mixed-text: #FFB300;
+        --color-vibe-unknown-bg: #0C5460;
+        --color-vibe-unknown-text: #86C1D1;
+
+        --color-customer-enthusiastic-bg: #0C4B33;
+        --color-customer-enthusiastic-text: #66BB6A;
+        --color-customer-enthusiastic-border: #38A169;
+
+        --color-customer-potential-bg: #422D00;
+        --color-customer-potential-text: #FFB300;
+        --color-customer-potential-border: #D6BD6B;
+
+        --color-customer-needs-attention-bg: #5C1D2A;
+        --color-customer-needs-attention-text: #EF5350;
+        --color-customer-needs-attention-border: #DC2626;
+
+        --color-customer-general-bg: #0F6B8A;
+        --color-customer-general-text: #86C1D1;
+        --color-customer-general-border: #4A90E2;
+
+        --color-background-animated-start: #0F172A;
+        --color-background-animated-end: #1E293B;
+        --color-form-background: #1E293B;
+      }
+
+      /* Carbon Minimalist Theme (Dark - Sleek & High Contrast) */
+      html[data-theme="Carbon Minimalist"] {
+        --color-primary: #10B981; /* Emerald / Mint */
+        --color-primary-dark: #059669;
+        --color-secondary: #CCFBF1; /* Soft Teal */
+        --color-bg-body: #121212; /* Material Dark */
+        --color-bg-card: #1E1E1E; /* Dark Grey */
+        --color-bg-card-hover: #2D2D2D; /* Slightly lighter dark gray */
+        --color-text-primary: #E2E8F0; /* Light Gray */
+        --color-text-secondary: #A0AEC0; /* Medium Gray */
+        --color-border-default: #2D3748;
+        --color-border-accent: #10B981;
+        --color-error: #EF4444;
+        --color-success: #22C55E;
+        --color-logout: #EF4444;
+        --color-logout-hover: #DC2626;
+        --color-mock-login-bg: #475569;
+        --color-mock-login-hover-bg: #64748B;
+        --color-text-on-primary: #121212;
+
+        --color-momentum-new-bg: #422D00;
+        --color-momentum-new-text: #FFB300;
+        --color-momentum-increasing-bg: #0C4B33;
+        --color-momentum-increasing-text: #66BB6A;
+        --color-momentum-cooling-bg: #5C1D2A;
+        --color-momentum-cooling-text: #EF5350;
+        --color-momentum-stable-bg: #1A237E;
+        --color-momentum-stable-text: #7986CB;
+
+        --color-vibe-positive-bg: #0C4B33;
+        --color-vibe-positive-text: #66BB6A;
+        --color-vibe-negative-bg: #5C1D2A;
+        --color-vibe-negative-text: #EF5350;
+        --color-vibe-neutral-bg: #2D3748;
+        --color-vibe-neutral-text: #A0AEC0;
+        --color-vibe-mixed-bg: #422D00;
+        --color-vibe-mixed-text: #FFB300;
+        --color-vibe-unknown-bg: #2D3748;
+        --color-vibe-unknown-text: #A0AEC0;
+
+        --color-customer-enthusiastic-bg: #0C4B33;
+        --color-customer-enthusiastic-text: #66BB6A;
+        --color-customer-enthusiastic-border: #38A169;
+
+        --color-customer-potential-bg: #422D00;
+        --color-customer-potential-text: #FFB300;
+        --color-customer-potential-border: #D6BD6B;
+
+        --color-customer-needs-attention-bg: #5C1D2A;
+        --color-customer-needs-attention-text: #EF5350;
+        --color-customer-needs-attention-border: #DC2626;
+
+        --color-customer-general-bg: #2D3748;
+        --color-customer-general-text: #A0AEC0;
+        --color-customer-general-border: #4A90E2;
+
+        --color-background-animated-start: #121212;
+        --color-background-animated-end: #1E1E1E;
+        --color-form-background: #1E1E1E;
+      }
+
+      /* Apply global theme variables */
+      body {
+        background: linear-gradient(to bottom right, var(--color-background-animated-start), var(--color-background-animated-end));
+        background-size: 200% 200%;
+        animation: gradientShift 10s ease infinite; /* Apply to body for full page */
+        color: var(--color-text-primary);
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      /* Keyframes for fade-in/scale-up animation */
+      @keyframes fadeInScaleUp {
+        0% { opacity: 0; transform: scale(0.8); }
+        100% { opacity: 1; transform: scale(1); }
+      }
+
+      .animate-fade-in-scale-up {
+        animation: fadeInScaleUp 0.5s ease-out forwards;
+      }
+
+      /* Keyframes for gradient animation on form */
+      @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      .animate-gradient-shift {
+        animation: gradientShift 10s ease infinite;
+      }
+
+      /* Keyframes for recording pulse animation */
+      @keyframes pulse-record {
+        0% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.1);
+          opacity: 0.7;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .animate-pulse-record {
+        animation: pulse-record 1.5s infinite;
+      }
+    </style>
+</head>
+<body class="antialiased">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>

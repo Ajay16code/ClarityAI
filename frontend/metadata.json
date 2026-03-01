@@ -1,0 +1,7 @@
+{
+  "name": "ClarityAI",
+  "description": "ClarityAI eliminates 'deal decay' by providing sales teams with a continuous, psychological, and structural memory of every customer relationship. It's a 'stateful' sales intelligence application that interprets the emotional and structural trajectory of a deal across its entire lifecycle.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

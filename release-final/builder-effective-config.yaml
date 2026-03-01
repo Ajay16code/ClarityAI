@@ -1,0 +1,14 @@
+directories:
+  output: release-final
+  buildResources: build
+appId: com.graviq.dealanalysis
+productName: Graviq Deal Analysis
+files:
+  - filter:
+      - dist/**/*
+      - electron/**/*
+      - package.json
+win:
+  target: nsis
+  signAndEditExecutable: false
+electronVersion: 40.6.1
