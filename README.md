@@ -1,4 +1,4 @@
-# BohemAI - Setup Instructions
+# ClarityIQ - Setup Instructions
 
 ## Architecture Clarity (Frontend / Backend / Database)
 
@@ -20,7 +20,7 @@ The Express backend is running, but it is not the component handling file upload
 
 To ensure authentication works correctly in the AI Studio preview environment, you must configure the **Redirect URL** in your Supabase dashboard.
 
-1. Go to your [Supabase Dashboard](https://supabase.com/dashboard).
+1. Go to your [Supabase Dashboard](https://supabase.com/dashboard/project/yieppfxafkodfgbccdkb).
 2. Navigate to **Authentication** > **URL Configuration**.
 3. Add the following URL to the **Redirect URLs** list:
    - `https://ais-dev-ojtos2i6jj5ivjtpzk4dic-226004877493.asia-southeast1.run.app/` (Development URL)
@@ -86,4 +86,4 @@ The application now uses a full-stack Express + Vite setup.
 
 If 4(a) and 4(b) are true, your frontend → database/storage connection is working correctly for voice recording storage.
 
-# ClarityAI
+# ClarityIQ
