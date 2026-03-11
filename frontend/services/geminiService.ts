@@ -40,6 +40,17 @@ const isModelAvailabilityError = (error: any): boolean => {
   );
 };
 
+const isPayloadTooLargeError = (error: any): boolean => {
+  const message = extractErrorMessage(error).toLowerCase();
+  return (
+    message.includes('maximum allowed size') ||
+    message.includes('object exceeded') ||
+    message.includes('payload too large') ||
+    message.includes('request too large') ||
+    message.includes('input too large')
+  );
+};
+
 const getRetryDelayMs = (error: any): number => {
   const message = extractErrorMessage(error);
   const retryMatch = message.match(/retry in\s+([0-9]+(?:\.[0-9]+)?)s/i);
@@ -116,6 +127,202 @@ interface GeminiStructuredResponse {
   unifiedDealHealthScore: number;
   geography: string;
   product: string;
+}
+
+const clampText = (value: unknown, fallback: string, maxLen = 2000): string => {
+  const text = typeof value === 'string' ? value.trim() : '';
+  if (!text) {
+    return fallback;
+  }
+  return text.length > maxLen ? `${text.slice(0, maxLen)}...` : text;
+};
+
+const asNumber = (value: unknown, fallback: number): number => {
+  const numeric = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(numeric) ? numeric : fallback;
+};
+
+const asStringArray = (value: unknown, maxItems = 8): string[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value
+    .map((item) => (typeof item === 'string' ? item.trim() : ''))
+    .filter(Boolean)
+    .slice(0, maxItems);
+};
+
+const cleanJsonText = (raw: string): string => {
+  let text = raw.trim();
+  if (text.startsWith('```')) {
+    text = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+  }
+  return text.trim();
+};
+
+const parseGeminiJson = (raw: string): any => {
+  const cleaned = cleanJsonText(raw);
+
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    const start = cleaned.indexOf('{');
+    const end = cleaned.lastIndexOf('}');
+    if (start >= 0 && end > start) {
+      const candidate = cleaned.slice(start, end + 1);
+      return JSON.parse(candidate);
+    }
+    throw new Error('Gemini returned malformed JSON payload.');
+  }
+};
+
+const normalizeGeminiResponse = (raw: any): GeminiStructuredResponse => {
+  const sentimentClassification: 'Positive' | 'Neutral' | 'Negative' = ['Positive', 'Neutral', 'Negative'].includes(raw?.sentiment?.classification)
+    ? raw.sentiment.classification
+    : 'Neutral';
+
+  const stageClassification: 'Early' | 'Mid' | 'Late' = ['Early', 'Mid', 'Late'].includes(raw?.momentum?.stageClassification)
+    ? raw.momentum.stageClassification
+    : 'Mid';
+
+  return {
+    transcription: clampText(raw?.transcription, 'Summary unavailable from transcription.'),
+    budget: clampText(raw?.budget, 'Not discussed', 500),
+    authority: clampText(raw?.authority, 'Not discussed', 500),
+    need: clampText(raw?.need, 'Not clear', 500),
+    timeline: clampText(raw?.timeline, 'Not discussed', 500),
+    vibeSummary: clampText(raw?.vibeSummary, 'Summary unavailable.', 800),
+    sentiment: {
+      overallScore: asNumber(raw?.sentiment?.overallScore, 0),
+      classification: sentimentClassification,
+      stages: Array.isArray(raw?.sentiment?.stages) ? raw.sentiment.stages.slice(0, 4) : [],
+      significantShifts: Array.isArray(raw?.sentiment?.significantShifts) ? raw.sentiment.significantShifts.slice(0, 5) : [],
+    },
+    engagement: {
+      talkListenRatio: clampText(raw?.engagement?.talkListenRatio, '50:50', 50),
+      buyerParticipationPercent: asNumber(raw?.engagement?.buyerParticipationPercent, 50),
+      buyerQuestionCount: asNumber(raw?.engagement?.buyerQuestionCount, 0),
+      interruptionPatterns: {
+        whoInterruptsMore: clampText(raw?.engagement?.interruptionPatterns?.whoInterruptsMore, 'N/A', 120),
+        toneSuggestion: clampText(raw?.engagement?.interruptionPatterns?.toneSuggestion, 'N/A', 240),
+      },
+    },
+    momentum: {
+      score: asNumber(raw?.momentum?.score, 50),
+      evidenceQuotes: asStringArray(raw?.momentum?.evidenceQuotes, 5),
+      stageClassification,
+      objections: Array.isArray(raw?.momentum?.objections) ? raw.momentum.objections.slice(0, 6) : [],
+      objectionResolutionRate: asNumber(raw?.momentum?.objectionResolutionRate, 0),
+      nextStepsDetected: asStringArray(raw?.momentum?.nextStepsDetected, 6),
+    },
+    buyingSignals: Array.isArray(raw?.buyingSignals) ? raw.buyingSignals.slice(0, 8) : [],
+    repEffectiveness: {
+      scores: {
+        discoveryDepth: asNumber(raw?.repEffectiveness?.scores?.discoveryDepth, 0),
+        businessPainUnderstanding: asNumber(raw?.repEffectiveness?.scores?.businessPainUnderstanding, 0),
+        valueArticulation: asNumber(raw?.repEffectiveness?.scores?.valueArticulation, 0),
+        objectionHandlingQuality: asNumber(raw?.repEffectiveness?.scores?.objectionHandlingQuality, 0),
+        nextStepClarity: asNumber(raw?.repEffectiveness?.scores?.nextStepClarity, 0),
+      },
+      strengths: asStringArray(raw?.repEffectiveness?.strengths, 6),
+      improvementAreas: asStringArray(raw?.repEffectiveness?.improvementAreas, 6),
+      coachingSuggestions: asStringArray(raw?.repEffectiveness?.coachingSuggestions, 6),
+    },
+    riskEngine: {
+      score: asNumber(raw?.riskEngine?.score, 0),
+      ghostingProbability: asNumber(raw?.riskEngine?.ghostingProbability, 0),
+      topRedFlags: asStringArray(raw?.riskEngine?.topRedFlags, 5),
+      riskIncreaseStage: clampText(raw?.riskEngine?.riskIncreaseStage, 'N/A', 120),
+      indicators: Array.isArray(raw?.riskEngine?.indicators) ? raw.riskEngine.indicators.slice(0, 6) : [],
+    },
+    unifiedDealHealthScore: asNumber(raw?.unifiedDealHealthScore, 50),
+    geography: clampText(raw?.geography, 'Unknown', 120),
+    product: clampText(raw?.product, 'Unknown', 120),
+  };
+};
+
+async function runCompactFallbackAnalysis(
+  ai: GoogleGenAI,
+  contentParts: GeminiContentPart[],
+  previousCalls: Call[]
+): Promise<GeminiStructuredResponse> {
+  const compactContext = previousCalls.slice(0, 2).map((call, idx) => (
+    `Prev ${idx + 1}: sentiment=${call.sentiment_analysis?.classification || 'N/A'}, momentum=${call.momentum_engine?.score || 'N/A'}, vibe=${call.vibe_summary?.slice(0, 120) || 'N/A'}`
+  )).join('\n');
+
+  const compactPrompt = `Return strict VALID JSON only. Keep output concise to avoid truncation.
+Rules:
+- transcription must be a concise summary (max 1200 chars), not full verbatim transcript.
+- Keep arrays short: nextStepsDetected<=5, topRedFlags<=5.
+- Avoid long quotes.
+
+${compactContext ? `Previous context:\n${compactContext}\n` : ''}
+Analyze the provided call content and return JSON for sales intelligence.`;
+
+  const parts = [...contentParts, { text: compactPrompt }];
+  const models = getGeminiModelCandidates();
+  let lastError: any = null;
+
+  for (const modelId of models) {
+    try {
+      const response = await ai.models.generateContent({
+        model: modelId,
+        contents: { parts },
+        config: {
+          systemInstruction: 'You are ClarityIQ compact fallback analyzer. Return only strict JSON.',
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              transcription: { type: Type.STRING },
+              budget: { type: Type.STRING },
+              authority: { type: Type.STRING },
+              need: { type: Type.STRING },
+              timeline: { type: Type.STRING },
+              vibeSummary: { type: Type.STRING },
+              sentiment: {
+                type: Type.OBJECT,
+                properties: {
+                  overallScore: { type: Type.NUMBER },
+                  classification: { type: Type.STRING }
+                }
+              },
+              momentum: {
+                type: Type.OBJECT,
+                properties: {
+                  score: { type: Type.NUMBER },
+                  stageClassification: { type: Type.STRING },
+                  nextStepsDetected: { type: Type.ARRAY, items: { type: Type.STRING } }
+                }
+              },
+              riskEngine: {
+                type: Type.OBJECT,
+                properties: {
+                  score: { type: Type.NUMBER },
+                  topRedFlags: { type: Type.ARRAY, items: { type: Type.STRING } }
+                }
+              },
+              unifiedDealHealthScore: { type: Type.NUMBER },
+              geography: { type: Type.STRING },
+              product: { type: Type.STRING }
+            },
+            required: ['transcription', 'vibeSummary']
+          }
+        }
+      });
+
+      const jsonStr = response.text?.trim();
+      if (!jsonStr) {
+        throw new Error('Compact fallback returned empty response.');
+      }
+
+      return normalizeGeminiResponse(parseGeminiJson(jsonStr));
+    } catch (error: any) {
+      lastError = error;
+    }
+  }
+
+  throw new Error(`Compact fallback failed: ${extractErrorMessage(lastError)}`);
 }
 
 /**
@@ -215,7 +422,7 @@ async function processContentWithGemini(
 ): Promise<GeminiCallAnalysisResult> {
   const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
-  let systemInstruction = `You are an expert sales intelligence AI named BohemAI. Your task is to analyze sales call content to extract deep intelligence across six main branches:
+  let systemInstruction = `You are an expert sales intelligence AI named ClarityIQ. Your task is to analyze sales call content to extract deep intelligence across six main branches:
 1. Sentiment & Emotional Intelligence: Overall sentiment, stage-by-stage sentiment, and significant emotional shifts.
 2. Buyer Engagement Intelligence: Talk-to-listen ratio, participation rates, and interruption patterns.
 3. Deal Health & Momentum Engine: Momentum score, objection handling, and next-step detection.
@@ -225,7 +432,7 @@ async function processContentWithGemini(
 7. Unified Deal Health Score: A single score (0-100) representing the overall health of the deal based on all factors.
 8. Metadata Extraction: Identify the Geography and Product discussed in the call.
 
-Also extract BANT details (Budget, Authority, Need, Timeline) and a full transcription.`;
+Also extract BANT details (Budget, Authority, Need, Timeline) and a concise transcript summary.`;
 
   let userPromptBase = `Analyze the following call content and provide a detailed sales intelligence report.
 
@@ -267,9 +474,13 @@ Also extract BANT details (Budget, Authority, Need, Timeline) and a full transcr
 8. Metadata:
    - Identify the Geography (e.g., North America, EMEA, APAC) and Product discussed.
 
-9. BANT & Transcription:
+9. BANT & Transcript Summary:
    - Extract Budget, Authority, Need, and Timeline.
-   - Provide the full transcription.
+  - Provide a concise transcript summary (max 1200 characters, not full verbatim text).
+
+10. Output Size Guardrails:
+  - Keep lists concise (maximum 5 items per array where possible).
+  - Keep each quote or sentence short.
 
 Provide your response in a structured JSON format.`;
 
@@ -475,7 +686,13 @@ Compare the sentiment of the current call with historical calls. Provide sentime
     if (!jsonStr) {
       throw new Error("Gemini returned an empty response.");
     }
-    const parsedResponse: GeminiStructuredResponse = JSON.parse(jsonStr);
+    let parsedResponse: GeminiStructuredResponse;
+    try {
+      parsedResponse = normalizeGeminiResponse(parseGeminiJson(jsonStr));
+    } catch (parseError: any) {
+      console.warn('Primary Gemini JSON parse failed. Running compact fallback analysis.', parseError);
+      parsedResponse = await runCompactFallbackAnalysis(ai, contentParts, previousCalls);
+    }
 
     const bant: BANTAnalysis = {
       budget: parsedResponse.budget,
@@ -513,6 +730,9 @@ Compare the sentiment of the current call with historical calls. Provide sentime
     }
     if (isQuotaExceededError(error)) {
       throw new Error('Gemini quota exceeded for current account/models. Add billing, wait for quota reset, or set VITE_GEMINI_MODEL_ID to a lower-cost model like gemini-2.5-flash.');
+    }
+    if (isPayloadTooLargeError(error)) {
+      throw new Error('Meeting content is too large for single-pass analysis. Please split audio into smaller chunks (around 20-30 minutes each) and upload sequentially.');
     }
     throw new Error(`Failed to analyze content with Gemini: ${errorMessage}`);
   }

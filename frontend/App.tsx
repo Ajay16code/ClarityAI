@@ -113,7 +113,7 @@ const App: React.FC = () => {
         id: 'demo-user-id',
         aud: 'authenticated',
         role: 'authenticated',
-        email: 'demo@bohemai.local',
+        email: 'demo@clarityiq.local',
         phone: '',
         app_metadata: { provider: 'email', providers: ['email'] },
         user_metadata: { username: 'Demo User' },

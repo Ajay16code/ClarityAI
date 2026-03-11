@@ -1,9 +1,9 @@
 import { Customer, Meeting, Call } from '../types';
 
 const STORAGE_KEYS = {
-  CUSTOMERS: 'bohemai_demo_customers',
-  MEETINGS: 'bohemai_demo_meetings',
-  CALLS: 'bohemai_demo_calls',
+  CUSTOMERS: 'clarityiq_demo_customers',
+  MEETINGS: 'clarityiq_demo_meetings',
+  CALLS: 'clarityiq_demo_calls',
 };
 
 export const demoService = {

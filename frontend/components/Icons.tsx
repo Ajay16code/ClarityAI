@@ -58,18 +58,8 @@ export const HamburgerIcon: React.FC<IconProps> = ({ className = 'w-6 h-6', ...p
 );
 
 export const DashboardIcon: React.FC<IconProps> = ({ className = 'w-6 h-6', ...props }) => (
-  <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
-    <defs>
-      <style>{`.cls-1{fill:none;}`}</style>
-    </defs>
-    <title>dashboard</title>
-    {/* Corrected path for the pie chart part of the dashboard icon */}
-    <path d="M12,26a5,5,0,1,1,5-5A5.0059,5.0059,0,0,1,12,26ZM12,18a3,3,0,1,0,3,3A3.0033,3.0033,0,0,0,12,18Z" fill="currentColor"/>
-    <rect x="24" y="21" width="2" height="5" fill="currentColor"/>
-    <rect x="20" y="16" width="2" height="10" fill="currentColor"/>
-    {/* Main frame and internal divisions - kept as was, seems correct */}
-    <path d="M28,2H4A2.002,2.002,0,0,0,2,4V28a2.0023,2.0023,0,0,0,2,2H28a2.0027,2.0027,0,0,0,2-2V4A2.0023,2.0023,0,0,0,28,2ZM28,11H14V4H28ZM12,4V11H4V4ZM4,28V13H28.0007L28.0013,28Z" fill="currentColor"/>
-    <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" className="cls-1" width="32" height="32"/>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className} {...props}>
+    <path d="M3 4.75A1.75 1.75 0 014.75 3h14.5A1.75 1.75 0 0121 4.75v14.5A1.75 1.75 0 0119.25 21H4.75A1.75 1.75 0 013 19.25V4.75zm2.5.75v4h5v-4h-5zm6.5 0v4H18v-4h-6zm-6.5 5.5v6h5v-6h-5zm6.5 0v6H18v-6h-6zm1.5 1.25a.75.75 0 000 1.5h3a.75.75 0 000-1.5h-3zm0 2.75a.75.75 0 000 1.5h1.75a.75.75 0 000-1.5H13.5z"/>
   </svg>
 );
 
@@ -364,9 +354,9 @@ export const ChevronDownIcon: React.FC<IconProps> = ({ className = 'w-4 h-4', ..
 
 // NEW: SettingsIcon for the settings page
 export const SettingsIcon: React.FC<IconProps> = ({ className = 'w-6 h-6', ...props }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className} {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9.525 3.116c1.087-.905 2.8-.905 3.889 0l.439.366A2.25 2.25 0 0015.59 5.093l.363 1.054a.825.825 0 01.785.586 11.47 11.47 0 01.498 1.498 1.5 1.5 0 001.042 1.042l1.054.363a2.25 2.25 0 001.621 2.23l1.054.362c1.087.905 1.087 2.366 0 3.271l-1.054.362a2.25 2.25 0 00-1.621 2.23l-1.054.363a.825.825 0 01-.785.586 11.47 11.47 0 01-.498 1.498 1.5 1.5 0 00-1.042 1.042l-.363 1.054a2.25 2.25 0 01-2.23 1.621l-1.054.362c-1.087.905-2.8.905-3.889 0l-.439-.366a2.25 2.25 0 00-2.23-1.621l-.363-1.054a.825.825 0 01-.785-.586 11.47 11.47 0 01-.498-1.498 1.5 1.5 0 00-1.042-1.042l-1.054-.363a2.25 2.25 0 01-1.621-2.23l-1.054-.362c-1.087-.905-1.087-2.366 0-3.271l1.054-.362a2.25 2.25 0 001.621-2.23l1.054-.363a.825.825 0 01.785-.586 11.47 11.47 0 01.498-1.498 1.5 1.5 0 001.042-1.042l.363-1.054a2.25 2.25 0 012.23-1.621l1.054-.362z" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className} {...props}>
+    <path d="M9.95 2.63a2.25 2.25 0 014.1 0l.37.92a.75.75 0 00.86.45l.98-.2a2.25 2.25 0 012.9 2.9l-.2.98a.75.75 0 00.45.86l.92.37a2.25 2.25 0 010 4.1l-.92.37a.75.75 0 00-.45.86l.2.98a2.25 2.25 0 01-2.9 2.9l-.98-.2a.75.75 0 00-.86.45l-.37.92a2.25 2.25 0 01-4.1 0l-.37-.92a.75.75 0 00-.86-.45l-.98.2a2.25 2.25 0 01-2.9-2.9l.2-.98a.75.75 0 00-.45-.86l-.92-.37a2.25 2.25 0 010-4.1l.92-.37a.75.75 0 00.45-.86l-.2-.98a2.25 2.25 0 012.9-2.9l.98.2a.75.75 0 00.86-.45l.37-.92zM12 8a4 4 0 100 8 4 4 0 000-8z"/>
+    <path d="M12 9.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5z" fill="var(--color-bg-card)"/>
   </svg>
 );
 export const CopyIcon: React.FC<IconProps> = ({ className = "w-6 h-6", ...props }) => (

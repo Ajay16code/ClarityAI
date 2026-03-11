@@ -3,16 +3,12 @@
 
 import React from 'react';
 
-interface BohemAILogoProps {
+interface ClarityIQLogoProps {
   className?: string;
-  // Fix: Added style prop to allow passing inline styles
   style?: React.CSSProperties; 
 }
 
-export const BohemAILogo: React.FC<BohemAILogoProps> = ({ className = 'w-10 h-10', ...props }) => (
-  // Fix: Changed 'xmlns:xlink' to 'xmlnsXlink' for JSX compatibility
-  // Fix: Added viewBox for proper scaling. Using estimated viewBox from nested content.
-  // Removed version, zoomAndPan, width, height, preserveAspectRatio, id
+export const ClarityIQLogo: React.FC<ClarityIQLogoProps> = ({ className = 'w-10 h-10', ...props }) => (
   <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 532.402 365.980" className={className} {...props}>
     <defs>
       <clipPath id="7a4ee36ed4">

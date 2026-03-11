@@ -1,4 +1,4 @@
--- BohemAI Complete Database & Storage Setup
+-- ClarityIQ Complete Database & Storage Setup
 -- Run this in your Supabase SQL Editor (https://supabase.com/dashboard/project/_/sql)
 
 -- 1. Create profiles table
@@ -153,10 +153,14 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('call-audio', 'call-audio', true)
 ON CONFLICT (id) DO NOTHING;
 
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('meeting-recordings', 'meeting-recordings', true)
+ON CONFLICT (id) DO NOTHING;
+
 -- Storage Policies (Allow users to manage their own folder)
 DROP POLICY IF EXISTS "Allow authenticated uploads" ON storage.objects;
-CREATE POLICY "Allow authenticated uploads" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'call-audio' AND auth.role() = 'authenticated');
+CREATE POLICY "Allow authenticated uploads" ON storage.objects FOR INSERT WITH CHECK (bucket_id IN ('call-audio', 'meeting-recordings') AND auth.role() = 'authenticated');
 DROP POLICY IF EXISTS "Allow public viewing" ON storage.objects;
-CREATE POLICY "Allow public viewing" ON storage.objects FOR SELECT USING (bucket_id = 'call-audio');
+CREATE POLICY "Allow public viewing" ON storage.objects FOR SELECT USING (bucket_id IN ('call-audio', 'meeting-recordings'));
 DROP POLICY IF EXISTS "Allow users to delete their own files" ON storage.objects;
-CREATE POLICY "Allow users to delete their own files" ON storage.objects FOR DELETE USING (bucket_id = 'call-audio' AND (storage.foldername(name))[1] = auth.uid()::text);
+CREATE POLICY "Allow users to delete their own files" ON storage.objects FOR DELETE USING (bucket_id IN ('call-audio', 'meeting-recordings') AND (storage.foldername(name))[1] = auth.uid()::text);

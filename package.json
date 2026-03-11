@@ -1,5 +1,5 @@
 {
-  "name": "bohemai",
+  "name": "clarityiq",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -14,6 +14,9 @@
     "electron-dev": "cross-env NODE_ENV=development concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
     "electron-dev:offline": "cross-env VITE_DEMO_MODE=true NODE_ENV=development concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
     "dist": "npm run build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win nsis --x64",
+    "dist:dir": "npm run build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win dir --x64",
+    "dist:final": "npm run build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win dir --x64 --config.directories.output=release-final",
+    "dist:final:installer": "npm run build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win nsis --x64 --config.directories.output=release-final",
     "dist:offline": "npm run build:offline && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win portable --x64 --config.directories.output=release-offline",
     "dist:offline:dir": "npm run build:offline && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win dir --x64 --config.directories.output=release-offline"
   },

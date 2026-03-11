@@ -1,7 +1,7 @@
 
 
 import React from 'react';
-import { BohemAILogo } from './BohemAILogo';
+import { ClarityIQLogo } from './ClarityIQLogo';
 import {
   DashboardIcon,
   HistoryIcon,
@@ -12,7 +12,7 @@ import {
   ThemeToggleIcon, // Import ThemeToggleIcon
   FontIcon,       // Import FontIcon
   SettingsIcon,   // Import new SettingsIcon
-  UsersIcon,      // Import UsersIcon
+  SparklesIcon,
 } from './Icons'; // Consolidated icons
 import { useTheme } from '../App'; // Import useTheme
 
@@ -33,7 +33,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, activeNav, onNavigate, toggle
 
   const navItems = [
     { name: 'Dashboard', icon: DashboardIcon },
-    { name: 'Intelligence', icon: UsersIcon }, // New Intelligence item
+    { name: 'Intelligence', icon: SparklesIcon },
     { name: 'History', icon: HistoryIcon },
     { name: 'Customers', icon: CustomersIcon },
     { name: 'Meetings', icon: MeetingsIcon },
@@ -52,8 +52,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, activeNav, onNavigate, toggle
       <div className="flex flex-col h-full p-4">
         {/* Logo and App Title */}
         <div className="flex items-center justify-center py-4 border-b border-[var(--color-border-default)] mb-6">
-          <BohemAILogo className={`w-10 h-10 text-[var(--color-primary)] ${isOpen ? 'mr-2' : ''}`} />
-          {isOpen && <h1 className="text-2xl font-bold text-[var(--color-primary)]">ClarityAI</h1>}
+          <ClarityIQLogo className={`w-10 h-10 text-[var(--color-primary)] ${isOpen ? 'mr-2' : ''}`} />
+          {isOpen && <h1 className="text-2xl font-bold text-[var(--color-primary)]">ClarityIQ</h1>}
         </div>
 
         {/* Navigation Links */}

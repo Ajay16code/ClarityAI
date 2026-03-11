@@ -23,14 +23,14 @@ const InfoPopup: React.FC<InfoPopupProps> = ({ isOpen, onClose }) => {
           <XMarkIcon className="w-6 h-6" />
         </button>
 
-        <h2 className="text-3xl font-bold text-[var(--color-primary)] mb-6">ClarityAI - How It Works</h2>
+        <h2 className="text-3xl font-bold text-[var(--color-primary)] mb-6">ClarityIQ - How It Works</h2>
 
         {/* Get Started Section */}
         <div className="bg-[var(--color-bg-body)] p-6 rounded-lg shadow-inner border border-[var(--color-border-default)] mb-6">
           <h3 className="text-2xl font-semibold text-[var(--color-text-primary)] mb-3">Get Started</h3>
           <p className="text-[var(--color-text-secondary)]">
             Use the "Upload New Audio File" button <span className="inline-block px-1 py-0.5 rounded bg-[var(--color-primary)] text-white text-xs">Upload</span> in the top right to analyze your first sales call.
-            ClarityAI will extract key insights, BANT information, and assess deal momentum.
+            ClarityIQ will extract key insights, BANT information, and assess deal momentum.
           </p>
         </div>
 
@@ -49,7 +49,7 @@ const InfoPopup: React.FC<InfoPopupProps> = ({ isOpen, onClose }) => {
         <div className="bg-[var(--color-bg-body)] p-6 rounded-lg shadow-inner border border-[var(--color-border-default)]">
           <h3 className="text-2xl font-semibold text-[var(--color-text-primary)] mb-3">The Deal Arc Engine</h3>
           <p className="text-[var(--color-text-secondary)]">
-            ClarityAI helps you eliminate 'deal decay' by providing a continuous, psychological,
+            ClarityIQ helps you eliminate 'deal decay' by providing a continuous, psychological,
             and structural memory of every customer relationship. Understand the emotional
             and structural trajectory of your deals across their entire lifecycle.
             It leverages advanced AI to interpret vocal micro-shifts and contextual data

@@ -6,6 +6,14 @@ import { supabase } from '../services/supabaseClient';
 import { useAuth, useTheme } from '../App';
 import { HamburgerIcon, UserCircleIcon, RecordIcon, StopIcon, UploadIcon, InfoCircleIcon } from './Icons'; // Consolidated icons, removed FontIcon, ThemeToggleIcon
 
+type DisplayMediaAudioConstraintsExtended = MediaTrackConstraints & {
+  systemAudio?: 'include' | 'exclude';
+};
+
+type DisplayMediaVideoConstraintsExtended = MediaTrackConstraints & {
+  displaySurface?: 'browser' | 'window' | 'monitor';
+};
+
 interface NavbarProps {
   toggleSidebar: () => void;
   selectedNavItem: string; // Added to display current page title
@@ -14,7 +22,7 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, selectedNavItem, onStartUpload, onShowInfoPopup }) => {
-  const { profile, setSession } = useAuth(); // Destructure setSession
+  const { profile, setSession, session } = useAuth(); // Destructure setSession
   // const { theme, toggleTheme, font, toggleFont } = useTheme(); // Removed as theme/font toggles moved to Sidebar
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -25,6 +33,8 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, selectedNavItem, onStart
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const displayStreamRef = useRef<MediaStream | null>(null);
+  const audioStreamRef = useRef<MediaStream | null>(null);
 
   // Timer for recording duration
   useEffect(() => {
@@ -49,8 +59,8 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, selectedNavItem, onStart
 
   const handleLogout = async () => {
     try {
-      localStorage.removeItem('bohemai_demo_mode');
-      localStorage.removeItem('bohemai_force_demo_session');
+      localStorage.removeItem('clarityiq_demo_mode');
+      localStorage.removeItem('clarityiq_force_demo_session');
       // Fix: Changed supabase.auth.signOut to supabase.auth.signOut()
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
@@ -65,10 +75,64 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, selectedNavItem, onStart
     setShowProfileDropdown((prev) => !prev);
   };
 
+  const uploadRecordingToMeetingBucket = async (file: File) => {
+    if (!session?.user?.id) {
+      return;
+    }
+
+    const storagePath = `${session.user.id}/${Date.now()}-${file.name}`;
+    const { error: meetingBucketError } = await supabase.storage
+      .from('meeting-recordings')
+      .upload(storagePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (!meetingBucketError) {
+      return;
+    }
+
+    // Backward-compatible fallback for existing deployments configured with call-audio.
+    const { error: callAudioError } = await supabase.storage
+      .from('call-audio')
+      .upload(storagePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (callAudioError) {
+      console.error('Backup upload failed for meeting-recordings and call-audio:', {
+        meetingRecordingsError: meetingBucketError.message,
+        callAudioError: callAudioError.message,
+      });
+      alert(`Recording captured, but backup upload failed: ${callAudioError.message}`);
+    }
+  };
+
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          displaySurface: 'browser',
+        } as DisplayMediaVideoConstraintsExtended,
+        audio: {
+          systemAudio: 'include',
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+        } as DisplayMediaAudioConstraintsExtended,
+      });
+
+      displayStreamRef.current = stream;
+      const audioTracks = stream.getAudioTracks();
+      if (audioTracks.length === 0) {
+        throw new Error('No system audio track detected. In the share dialog, choose the Meet tab and enable Share tab audio.');
+      }
+
+      // Record only audio by constructing an audio-only stream for MediaRecorder.
+      const audioOnlyStream = new MediaStream(audioTracks);
+      audioStreamRef.current = audioOnlyStream;
+
       // Check for supported mime types
       const mimeType = MediaRecorder.isTypeSupported('audio/webm') 
         ? 'audio/webm' 
@@ -76,7 +140,7 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, selectedNavItem, onStart
           ? 'audio/ogg' 
           : '';
 
-      const mediaRecorder = new MediaRecorder(stream, { mimeType });
+      const mediaRecorder = new MediaRecorder(audioOnlyStream, { mimeType });
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -94,19 +158,39 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, selectedNavItem, onStart
           `live_recording_${new Date().getTime()}.${extension}`, 
           { type: mimeType || 'audio/wav' }
         );
-        
+
+        // Open analysis workflow immediately (customer/meeting selection in UploadProcessor).
         onStartUpload(file);
-        
-        // Stop all tracks to release the microphone
-        stream.getTracks().forEach(track => track.stop());
+
+        // Backup upload to dedicated meeting-recordings bucket without blocking UI flow.
+        void uploadRecordingToMeetingBucket(file);
+
+        // Stop all tracks to release screen/audio capture resources.
+        displayStreamRef.current?.getTracks().forEach(track => track.stop());
+        audioStreamRef.current?.getTracks().forEach(track => track.stop());
+        displayStreamRef.current = null;
+        audioStreamRef.current = null;
+        mediaRecorderRef.current = null;
+        audioChunksRef.current = [];
       };
 
       mediaRecorder.start();
+
+      // If user stops sharing from browser controls, finalize recording cleanly.
+      stream.getVideoTracks().forEach((track) => {
+        track.onended = () => {
+          if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+            mediaRecorderRef.current.stop();
+            setIsRecording(false);
+          }
+        };
+      });
+
       setIsRecording(true);
       console.log('Recording started...');
     } catch (err) {
-      console.error('Error accessing microphone:', err);
-      alert('Could not access microphone. Please ensure you have given permission in your browser settings.');
+      console.error('Error starting system audio recording:', err);
+      alert('Could not start system audio capture. Select the Google Meet tab and enable Share tab audio.');
     }
   };
 
@@ -115,7 +199,14 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, selectedNavItem, onStart
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       console.log('Recording stopped.');
+      return;
     }
+
+    // Fallback cleanup if recorder is already inactive but streams are still open.
+    displayStreamRef.current?.getTracks().forEach(track => track.stop());
+    audioStreamRef.current?.getTracks().forEach(track => track.stop());
+    displayStreamRef.current = null;
+    audioStreamRef.current = null;
   };
 
   const handleRecordToggle = () => {

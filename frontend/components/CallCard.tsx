@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Call, DealMomentum, VibeCategory } from '../types';
 import { useTheme } from '../App'; // Import useTheme
 import VibeBadge from './VibeBadge'; // Import VibeBadge
 import { downloadCallReportPdf } from '../utils/callReportPdf';
+import { getTranscriptHighlights } from '../utils/transcriptHighlights';
 
 interface CallCardProps {
   call: Call;
@@ -29,6 +30,7 @@ const getMomentumColor = (momentum: DealMomentum) => {
 const CallCard: React.FC<CallCardProps> = ({ call, onSelectCall, isDetailedView = false }) => {
   const formattedDate = new Date(call.created_at).toLocaleString();
   const { theme } = useTheme(); // Use theme context for font styling
+  const transcriptHighlights = useMemo(() => getTranscriptHighlights(call.transcription), [call.transcription]);
 
   const handleDownloadReport = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
@@ -67,7 +69,12 @@ const CallCard: React.FC<CallCardProps> = ({ call, onSelectCall, isDetailedView 
 
       {!isDetailedView && (
         <div className="flex flex-col flex-grow"> {/* Added flex-grow */}
-          <p className="text-[var(--color-text-primary)] line-clamp-3 mb-4 flex-grow">{call.transcription}</p>
+          <p className="text-[var(--color-text-primary)] line-clamp-3 mb-2 flex-grow">{transcriptHighlights.summary}</p>
+          {transcriptHighlights.keywords.length > 0 && (
+            <p className="text-xs text-[var(--color-text-secondary)] line-clamp-2 mb-4">
+              Keywords: {transcriptHighlights.keywordLine}
+            </p>
+          )}
           <div className="mt-4 pt-4 border-t border-[var(--color-border-default)] text-sm">
             <div className="flex justify-between items-center mb-2">
               <p className="font-semibold text-[var(--color-text-primary)]">Key Vibe:</p>
@@ -91,10 +98,30 @@ const CallCard: React.FC<CallCardProps> = ({ call, onSelectCall, isDetailedView 
       {isDetailedView && (
         <div className="space-y-6">
           <div>
-            <h4 className="font-semibold text-lg text-[var(--color-primary)] mb-2">Transcription</h4>
+            <h4 className="font-semibold text-lg text-[var(--color-primary)] mb-2">Transcript Highlights</h4>
             <p className="text-[var(--color-text-primary)] bg-[var(--color-bg-body)] p-3 rounded-md border border-[var(--color-border-default)] whitespace-pre-wrap">
-              {call.transcription}
+              {transcriptHighlights.summary}
             </p>
+            {transcriptHighlights.keywords.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {transcriptHighlights.keywords.map((keyword) => (
+                  <span
+                    key={keyword}
+                    className="px-2 py-1 text-xs rounded-full bg-[var(--color-bg-card-hover)] text-[var(--color-text-secondary)] border border-[var(--color-border-default)]"
+                  >
+                    {keyword}
+                  </span>
+                ))}
+              </div>
+            )}
+            <details className="mt-3">
+              <summary className="cursor-pointer text-sm text-[var(--color-primary)] hover:text-[var(--color-primary-dark)]">
+                View full transcript
+              </summary>
+              <p className="mt-2 text-sm text-[var(--color-text-primary)] bg-[var(--color-bg-body)] p-3 rounded-md border border-[var(--color-border-default)] whitespace-pre-wrap max-h-64 overflow-y-auto">
+                {call.transcription}
+              </p>
+            </details>
             {call.file_url && (
               <div className="mt-3">
                 <audio
@@ -422,7 +449,7 @@ const CallCard: React.FC<CallCardProps> = ({ call, onSelectCall, isDetailedView 
               {call.deal_momentum}
             </span>
             <p className="mt-2 text-[var(--color-text-secondary)] text-sm">
-              This momentum is assessed by ClarityAI comparing this call's insights with recent historical interactions.
+              This momentum is assessed by ClarityIQ comparing this call's insights with recent historical interactions.
             </p>
           </div>
         </div>

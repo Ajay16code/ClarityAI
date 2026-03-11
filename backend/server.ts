@@ -25,7 +25,7 @@ async function startServer() {
 
   app.get("/api/info", (req, res) => {
     res.json({
-      name: "BohemAI Backend",
+      name: "ClarityIQ Backend",
       version: "1.0.0",
       description: "Sales Intelligence Application Backend"
     });

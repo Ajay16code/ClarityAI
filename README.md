@@ -1,4 +1,4 @@
-# BohemAI - Setup Instructions
+# ClarityIQ - Setup Instructions
 
 ## Architecture Clarity (Frontend / Backend / Database)
 
@@ -86,4 +86,17 @@ The application now uses a full-stack Express + Vite setup.
 
 If 4(a) and 4(b) are true, your frontend → database/storage connection is working correctly for voice recording storage.
 
-# ClarityAI
+## Electron Desktop Build (Windows)
+
+Use these commands to generate an updated desktop app like your existing `release-final` output:
+
+1. Install dependencies:
+   - `npm install`
+2. Build and package desktop app to `release-final/win-unpacked`:
+   - `npm run dist:final`
+3. (Optional) Build installer into `release-final`:
+   - `npm run dist:final:installer`
+
+For local desktop development:
+
+- `npm run electron-dev`

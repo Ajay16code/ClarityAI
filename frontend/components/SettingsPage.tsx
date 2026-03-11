@@ -99,7 +99,7 @@ const SettingsPage: React.FC = () => {
           Purge All My Data
         </h3>
         <p className="text-[var(--color-text-secondary)] mb-4">
-          This irreversible action will permanently delete all your analyzed calls, customer records, and meeting information from ClarityAI. Your profile will also be reset, and you will be logged out.
+          This irreversible action will permanently delete all your analyzed calls, customer records, and meeting information from ClarityIQ. Your profile will also be reset, and you will be logged out.
         </p>
         <div className="flex items-center text-[var(--color-error)] font-semibold mb-6">
           <InfoCircleIcon className="w-5 h-5 mr-2" />

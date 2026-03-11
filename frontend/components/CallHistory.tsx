@@ -9,6 +9,7 @@ import LoadingSpinner from './LoadingSpinner';
 import VibeBadge from './VibeBadge'; // Import VibeBadge
 import { getOverallDealMomentumArc, getOverallVibeArc } from '../utils/arcHelpers'; // NEW: Import arc helpers
 import { downloadCallReportPdf } from '../utils/callReportPdf';
+import { getTranscriptHighlights } from '../utils/transcriptHighlights';
 import {
   TableCellsIcon,
   Squares2X2Icon,
@@ -135,7 +136,7 @@ const CallHistory: React.FC<CallHistoryProps> = ({ calls, setCalls, customers, m
       currentCalls = currentCalls.filter(
         (call) =>
           call.file_name.toLowerCase().includes(lowerSearchTerm) ||
-          call.transcription.toLowerCase().includes(lowerSearchTerm) ||
+          getTranscriptHighlights(call.transcription).searchableText.includes(lowerSearchTerm) ||
           (call.customer_name && call.customer_name.toLowerCase().includes(lowerSearchTerm)) ||
           (call.meeting_name && call.meeting_name.toLowerCase().includes(lowerSearchTerm))
       );
@@ -287,7 +288,7 @@ const CallHistory: React.FC<CallHistoryProps> = ({ calls, setCalls, customers, m
               {/* Search Term */}
               <input
                 type="text"
-                placeholder="Search file name, transcription..."
+                placeholder="Search file name, transcript summary, keywords..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-3 py-2 border border-[var(--color-border-default)] rounded-md shadow-sm focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] bg-[var(--color-bg-body)] text-[var(--color-text-primary)] sm:text-sm"

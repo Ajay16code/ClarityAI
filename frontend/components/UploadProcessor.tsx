@@ -11,6 +11,9 @@ import { XCircleIcon, ArrowTrendingUpIcon, PieChartIcon } from './Icons'; // Add
 import { getOverallDealMomentumArc, getOverallVibeArc } from '../utils/arcHelpers'; // NEW: Import arc helpers
 import VibeBadge from './VibeBadge'; // Import VibeBadge for consistent display
 
+const MAX_AUDIO_FILE_SIZE_MB = 25;
+const MAX_AUDIO_FILE_SIZE_BYTES = MAX_AUDIO_FILE_SIZE_MB * 1024 * 1024;
+
 interface UploadProcessorProps {
   file: File;
   onUploadComplete: (newCall: Call) => void;
@@ -233,6 +236,12 @@ const UploadProcessor: React.FC<UploadProcessorProps> = ({
       let analysisResult: GeminiCallAnalysisResult;
 
       if (mimeType.startsWith('audio/')) {
+        if (file.size > MAX_AUDIO_FILE_SIZE_BYTES) {
+          throw new Error(
+            `Audio file is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). ` +
+            `Please upload a smaller chunk (<= ${MAX_AUDIO_FILE_SIZE_MB} MB, roughly 20-30 minutes).`
+          );
+        }
         setUploadMessage('Converting audio to Base64 and analyzing with Gemini...');
         const base64Audio = await fileToBase64(file);
         // Pass allCalls for a comprehensive history for momentum calculation
@@ -412,53 +421,68 @@ const UploadProcessor: React.FC<UploadProcessorProps> = ({
     const vibeArc = getOverallVibeArc(relevantCalls);
 
     return (
-      <div className="mt-6 space-y-4 text-left">
+      <div className="mt-4 space-y-5 text-left">
         <h3 className="text-xl font-bold text-[var(--color-primary)]">Analysis Summary</h3>
-        <p className="text-[var(--color-text-secondary)]">
-          <span className="font-semibold text-[var(--color-text-primary)]">File:</span> {newCall.file_name}
-        </p>
-        {customerName && (
-          <p className="text-[var(--color-text-secondary)]">
-            <span className="font-semibold text-[var(--color-text-primary)]">Customer:</span> {customerName}
-          </p>
-        )}
-        {meetingName && (
-          <p className="text-[var(--color-text-secondary)]">
-            <span className="font-semibold text-[var(--color-text-primary)]">Meeting:</span> {meetingName}
-          </p>
-        )}
 
-        <div className="border-t border-[var(--color-border-default)] pt-4 mt-4 space-y-3">
-          <div className="flex items-center">
-            <ArrowTrendingUpIcon className="w-6 h-6 mr-2 text-[var(--color-primary)]" />
-            <p className="text-lg font-semibold text-[var(--color-text-primary)]">Deal Momentum Arc:</p>
-          </div>
-          <p className="text-[var(--color-text-secondary)]">{momentumArc}</p>
+        <div className="rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-body)] p-4">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-[140px_1fr] sm:items-start">
+            <p className="font-semibold text-[var(--color-text-primary)]">File</p>
+            <p className="break-words text-[var(--color-text-secondary)]">{newCall.file_name}</p>
 
-          <div className="flex items-center mt-4">
-            <PieChartIcon className="w-6 h-6 mr-2 text-[var(--color-primary)]" />
-            <p className="text-lg font-semibold text-[var(--color-text-primary)]">Overall Vibe Arc:</p>
+            {customerName && (
+              <>
+                <p className="font-semibold text-[var(--color-text-primary)]">Customer</p>
+                <p className="break-words text-[var(--color-text-secondary)]">{customerName}</p>
+              </>
+            )}
+
+            {meetingName && (
+              <>
+                <p className="font-semibold text-[var(--color-text-primary)]">Meeting</p>
+                <p className="break-words text-[var(--color-text-secondary)]">{meetingName}</p>
+              </>
+            )}
           </div>
-          <p className="text-[var(--color-text-secondary)]">{vibeArc}</p>
         </div>
 
-        <div className="border-t border-[var(--color-border-default)] pt-4 mt-4">
-          <p className="text-md font-semibold text-[var(--color-text-primary)] mb-2">New Call's Vibe:</p>
-          <VibeBadge category={newCall.vibe_category} summary={newCall.vibe_summary} className="text-base" />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="rounded-lg border border-[var(--color-border-default)] p-4">
+            <div className="mb-2 flex items-center">
+              <ArrowTrendingUpIcon className="mr-2 h-6 w-6 text-[var(--color-primary)]" />
+              <p className="text-lg font-semibold text-[var(--color-text-primary)]">Deal Momentum Arc</p>
+            </div>
+            <p className="text-[var(--color-text-secondary)]">{momentumArc}</p>
+          </div>
+
+          <div className="rounded-lg border border-[var(--color-border-default)] p-4">
+            <div className="mb-2 flex items-center">
+              <PieChartIcon className="mr-2 h-6 w-6 text-[var(--color-primary)]" />
+              <p className="text-lg font-semibold text-[var(--color-text-primary)]">Overall Vibe Arc</p>
+            </div>
+            <p className="text-[var(--color-text-secondary)]">{vibeArc}</p>
+          </div>
         </div>
-        <div className="mt-2">
-            <p className="text-md font-semibold text-[var(--color-text-primary)] mb-2">New Call's Momentum:</p>
-            <span className={`inline-block px-3 py-1 text-base font-semibold rounded-full ${newCall.deal_momentum === DealMomentum.INCREASING ? 'bg-[var(--color-momentum-increasing-bg)] text-[var(--color-momentum-increasing-text)]' :
+
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="rounded-lg border border-[var(--color-border-default)] p-4">
+            <p className="mb-2 text-md font-semibold text-[var(--color-text-primary)]">New Call's Vibe</p>
+            <VibeBadge category={newCall.vibe_category} summary={newCall.vibe_summary} className="text-base" />
+          </div>
+
+          <div className="rounded-lg border border-[var(--color-border-default)] p-4">
+            <p className="mb-2 text-md font-semibold text-[var(--color-text-primary)]">New Call's Momentum</p>
+            <span className={`inline-block rounded-full px-3 py-1 text-base font-semibold ${newCall.deal_momentum === DealMomentum.INCREASING ? 'bg-[var(--color-momentum-increasing-bg)] text-[var(--color-momentum-increasing-text)]' :
             newCall.deal_momentum === DealMomentum.COOLING ? 'bg-[var(--color-momentum-cooling-bg)] text-[var(--color-momentum-cooling-text)]' :
             newCall.deal_momentum === DealMomentum.STABLE ? 'bg-[var(--color-momentum-stable-bg)] text-[var(--color-momentum-stable-text)]' :
             newCall.deal_momentum === DealMomentum.NEW ? 'bg-[var(--color-momentum-new-bg)] text-[var(--color-momentum-new-text)]' :
             'bg-[var(--color-border-default)] text-[var(--color-text-secondary)]'}`}>
-            {newCall.deal_momentum}
+              {newCall.deal_momentum}
             </span>
+          </div>
         </div>
       </div>
     );
-  }, [allCalls, cleanNameForDisplay, getUserSuffix]); // Dependencies for ArcSummary itself
+  }, [allCalls]); // Dependencies for ArcSummary itself
 
   const handleDone = () => {
     if (analysisResultData) {
@@ -470,7 +494,10 @@ const UploadProcessor: React.FC<UploadProcessorProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-[var(--color-bg-card)] p-8 rounded-lg shadow-2xl max-w-lg w-full text-center relative transition-colors duration-300" style={{ fontFamily: 'inherit' }}>
+      <div
+        className={`bg-[var(--color-bg-card)] rounded-lg shadow-2xl relative transition-colors duration-300 ${showAnalysisSummary ? 'w-[95vw] max-w-5xl max-h-[90vh] overflow-y-auto p-6 sm:p-8 text-left' : 'w-full max-w-lg p-8 text-center'}`}
+        style={{ fontFamily: 'inherit' }}
+      >
         <button
           onClick={onCancel}
           className="absolute top-4 right-4 text-[var(--color-text-secondary)] hover:text-[var(--color-error)] transition-colors duration-200"
@@ -482,22 +509,23 @@ const UploadProcessor: React.FC<UploadProcessorProps> = ({
 
         {showAnalysisSummary && analysisResultData ? (
           <>
-            <h2 className="text-2xl font-bold mb-4 text-[var(--color-primary)]">Analysis Complete!</h2>
+            <h2 className="mb-4 text-2xl font-bold text-[var(--color-primary)]">Analysis Complete!</h2>
             {saveInfo && (
-              <div className="mb-4 p-3 rounded-md border border-[var(--color-border-default)] bg-[var(--color-bg-body)] text-left">
-                <p className="text-sm text-[var(--color-text-primary)]">
-                  <span className="font-semibold">Save Mode:</span> {saveInfo.target === 'supabase' ? 'Supabase Database + Storage' : 'Demo Mode (Local Browser Storage)'}
-                </p>
-                <p className="text-sm text-[var(--color-text-secondary)] mt-1">
-                  <span className="font-semibold text-[var(--color-text-primary)]">Call ID:</span> {saveInfo.callId || 'N/A'}
-                </p>
+              <div className="mb-4 rounded-md border border-[var(--color-border-default)] bg-[var(--color-bg-body)] p-4 text-left">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-[140px_1fr] sm:items-start">
+                  <p className="text-sm font-semibold text-[var(--color-text-primary)]">Save Mode</p>
+                  <p className="text-sm text-[var(--color-text-secondary)]">{saveInfo.target === 'supabase' ? 'Supabase Database + Storage' : 'Demo Mode (Local Browser Storage)'}</p>
+
+                  <p className="text-sm font-semibold text-[var(--color-text-primary)]">Call ID</p>
+                  <p className="text-sm text-[var(--color-text-secondary)]">{saveInfo.callId || 'N/A'}</p>
+                </div>
                 {saveInfo.fileUrl && (
-                  <p className="text-sm text-[var(--color-text-secondary)] mt-1 break-all">
+                  <p className="mt-2 break-all text-sm text-[var(--color-text-secondary)]">
                     <span className="font-semibold text-[var(--color-text-primary)]">File URL:</span> {saveInfo.fileUrl}
                   </p>
                 )}
                 {saveInfo.target === 'supabase' && (
-                  <p className="text-sm text-[var(--color-success)] mt-1">
+                  <p className="mt-2 text-sm text-[var(--color-success)]">
                     Database save verified.
                   </p>
                 )}
@@ -508,13 +536,15 @@ const UploadProcessor: React.FC<UploadProcessorProps> = ({
               customerName={analysisResultData.customerName}
               meetingName={analysisResultData.meetingName}
             />
-            <button
-              onClick={handleDone}
-              className="mt-6 px-8 py-3 bg-[var(--color-primary)] text-white font-semibold rounded-lg shadow-md hover:bg-[var(--color-primary-dark)] transition-colors duration-200"
-              style={{ fontFamily: 'inherit' }}
-            >
-              Done
-            </button>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={handleDone}
+                className="rounded-lg bg-[var(--color-primary)] px-8 py-3 font-semibold text-white shadow-md transition-colors duration-200 hover:bg-[var(--color-primary-dark)]"
+                style={{ fontFamily: 'inherit' }}
+              >
+                Done
+              </button>
+            </div>
           </>
         ) : (
           <>

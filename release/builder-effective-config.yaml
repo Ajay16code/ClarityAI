@@ -1,5 +1,5 @@
 directories:
-  output: release-online-fixed
+  output: release
   buildResources: build
 appId: com.graviq.dealanalysis
 productName: Graviq Deal Analysis

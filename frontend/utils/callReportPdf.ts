@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { Call } from '../types';
+import { getTranscriptHighlights } from './transcriptHighlights';
 
 const PAGE_MARGIN = 14;
 const PAGE_WIDTH = 210;
@@ -22,6 +23,7 @@ const toFilenameBase = (fileName: string) => {
 
 export const downloadCallReportPdf = (call: Call) => {
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const transcriptHighlights = getTranscriptHighlights(call.transcription);
   let y = PAGE_MARGIN;
 
   const ensureSpace = (requiredHeight: number) => {
@@ -64,7 +66,7 @@ export const downloadCallReportPdf = (call: Call) => {
 
   const analyzedAt = new Date(call.created_at).toLocaleString();
 
-  writeWrapped('BohemAI Call Analysis Report', 16, 7, true);
+  writeWrapped('ClarityIQ Call Analysis Report', 16, 7, true);
   writeWrapped(`Generated: ${new Date().toLocaleString()}`, 9, 4);
   addGap(2);
 
@@ -179,8 +181,12 @@ export const downloadCallReportPdf = (call: Call) => {
     }
   }
 
-  addSection('Transcription');
-  writeWrapped(asText(call.transcription));
+  addSection('Transcript Highlights');
+  writeWrapped(asText(transcriptHighlights.summary));
+  if (transcriptHighlights.keywords.length > 0) {
+    writeWrapped('Keywords', 10, 5, true);
+    addList(transcriptHighlights.keywords);
+  }
 
   const fileBase = toFilenameBase(call.file_name || 'call-report');
   doc.save(`${fileBase}-report.pdf`);

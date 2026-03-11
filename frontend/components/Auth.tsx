@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabaseClient';
-import { BohemAILogo } from './BohemAILogo';
+import { ClarityIQLogo } from './ClarityIQLogo';
 import {
   ArrowTrendingUpIcon,
   AudioWaveformIcon,
@@ -31,7 +31,7 @@ const workflowSteps: WorkflowStep[] = [
   {
     icon: AudioWaveformIcon,
     title: 'Seamless Audio Ingestion',
-    description: 'Effortlessly upload call recordings to ClarityAI for intelligent processing.',
+    description: 'Effortlessly upload call recordings to ClarityIQ for intelligent processing.',
     xPos: 100, yPos: 75,
     mainColor: '#007bff',
     accentColor: '#007bff',
@@ -71,7 +71,7 @@ const workflowSteps: WorkflowStep[] = [
   {
     icon: ContinuousDocumentationIcon,
     title: 'Living Memory',
-    description: 'ClarityAI builds a continuous, living memory of every customer relationship.',
+    description: 'ClarityIQ builds a continuous, living memory of every customer relationship.',
     xPos: 700, yPos: 75,
     mainColor: '#17a2b8',
     accentColor: '#17a2b8',
@@ -272,8 +272,8 @@ const Auth: React.FC = () => {
 
         {/* Header */}
         <div className="absolute top-8 left-8 flex items-center z-20">
-          <BohemAILogo className="w-10 h-10 text-white mr-3" />
-          <h1 className="text-2xl font-bold text-white tracking-tight" style={{ fontFamily: 'inherit' }}>ClarityAI</h1> {/* Use inherit */}
+          <ClarityIQLogo className="w-10 h-10 text-white mr-3" />
+          <h1 className="text-2xl font-bold text-white tracking-tight" style={{ fontFamily: 'inherit' }}>ClarityIQ</h1> {/* Use inherit */}
         </div>
 
         {/* MAIN ANIMATION SVG */}
@@ -419,8 +419,8 @@ const Auth: React.FC = () => {
           <div className="absolute top-[-50px] right-[-50px] w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
 
           <div className="flex flex-col items-center mb-6 relative z-10">
-            <BohemAILogo className="w-20 h-20 mb-3 text-white drop-shadow-md" />
-              <h1 className="text-3xl font-extrabold text-center text-white tracking-wide">ClarityAI</h1>
+            <ClarityIQLogo className="w-20 h-20 mb-3 text-white drop-shadow-md" />
+              <h1 className="text-3xl font-extrabold text-center text-white tracking-wide">ClarityIQ</h1>
             <p className="text-center text-white text-sm mt-2 opacity-90 font-medium tracking-wider uppercase">Magic Summary Engine</p>
           </div>
 
